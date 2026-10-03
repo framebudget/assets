@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+
+# HyperFrames render cache and throwaway outputs; the final render and poster stay
+video/.hyperframes/
+video/out/frames/
+video/out/preview-*.wav
+video/out/framebudget-music-only.mp4
