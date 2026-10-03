@@ -4,8 +4,11 @@
 <meta charset="utf-8">
 <title>framebudget release art source</title>
 <!--
-  Render at 1200x630 with scripts/release/render-art.mjs, which fills the
-  fb:* slots below. The sample content shows what a release looks like.
+  Render at 1200x630 with scripts/release/render-art.mjs (framebudget/core), which
+  fills the fb:* slots below from the notes.json of a release: fb:date, fb:label,
+  fb:version, fb:counts (1 to 3 cards, one per release.config.json section, colored
+  by position) and fb:changes (each change lists its section titles). The sample
+  content is a library release; open this file to preview it.
 -->
 <link rel="stylesheet" href="../tokens.css">
 <style>
@@ -59,16 +62,31 @@
     text-transform: uppercase;
   }
 
-  /* The version shrinks to fit left of the counts and stays centered in its band. */
-  .version {
+  /* The version and the counts share one band; the version takes what the counts
+     leave and its type shrinks to fit that width (--chars is its length). */
+  .headline {
     position: absolute;
     top: 178px;
     left: 68px;
+    right: 72px;
     display: flex;
     align-items: center;
+    gap: 36px;
     height: 150px;
+  }
+
+  .version {
+    flex: 1;
+    min-width: 0;
+    height: 150px;
+    display: flex;
+    align-items: center;
     margin: 0;
-    font-size: min(150px, calc(1150px / var(--chars)));
+    container-type: inline-size;
+  }
+
+  .version span {
+    font-size: min(150px, calc(160cqi / var(--chars)));
     font-weight: 780;
     font-stretch: 116%;
     letter-spacing: -0.035em;
@@ -77,15 +95,15 @@
   }
 
   .counts {
-    position: absolute;
-    top: 186px;
-    right: 72px;
+    flex: none;
+    align-self: flex-start;
     display: flex;
     gap: 14px;
+    margin-top: 8px;
   }
 
   .count {
-    width: 132px;
+    width: 136px;
     padding: 14px 18px 16px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-panel);
@@ -101,22 +119,31 @@
     line-height: 1;
   }
 
+  /* A long title wraps after its scope (render-art puts a <wbr> after each "/"). */
   .count span {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    position: relative;
+    display: block;
     margin-top: 10px;
+    padding-left: 18px;
     color: var(--color-muted);
     font-family: var(--font-mono);
-    font-size: 15px;
+    font-size: 14px;
+    line-height: 1.3;
   }
 
-  .count span::before {
+  .count span::before,
+  .section::before {
     content: "";
     width: 10px;
     height: 10px;
     border-radius: var(--radius-segment);
     background: var(--c);
+  }
+
+  .count span::before {
+    position: absolute;
+    top: 4px;
+    left: 0;
   }
 
   .changes {
@@ -166,11 +193,19 @@
     white-space: nowrap;
   }
 
-  .change .areas {
+  .change .sections {
     flex: none;
+    display: flex;
+    gap: 16px;
     color: var(--color-muted);
     font-family: var(--font-mono);
-    font-size: 15px;
+    font-size: 14px;
+  }
+
+  .section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .change.empty {
@@ -187,26 +222,31 @@
   .fixes { --c: var(--fb-amber); }
   .performance { --c: var(--fb-cyan); }
   .other { --c: var(--fb-pewter); }
-  .library { --c: var(--fb-violet); }
-  .website { --c: var(--fb-blue); }
+  /* Sections, by their position in release.config.json. */
+  .s1 { --c: var(--fb-violet); }
+  .s2 { --c: var(--fb-blue); }
+  .s3 { --c: var(--fb-amber); }
 </style>
 </head>
 <body>
   <img class="logo" src="../logo/lockup-dark.svg" alt="framebudget">
   <!-- fb:date --><div class="date"><span>released</span> 2026-10-03</div><!-- /fb:date -->
-  <div class="label">New release</div>
-  <!-- fb:version --><h1 class="version" style="--chars: 6">v0.2.0</h1><!-- /fb:version -->
-  <!-- fb:counts -->
-  <div class="counts">
-    <div class="count library"><b>3</b><span>Library</span></div>
-    <div class="count website"><b>4</b><span>Website</span></div>
+  <!-- fb:label --><div class="label">Library release</div><!-- /fb:label -->
+  <div class="headline">
+    <!-- fb:version --><h1 class="version" style="--chars: 6"><span>v0.3.0</span></h1><!-- /fb:version -->
+    <!-- fb:counts -->
+    <div class="counts">
+      <div class="count s1"><b>2</b><span>@framebudget/<wbr>core</span></div>
+      <div class="count s2"><b>1</b><span>@framebudget/<wbr>react</span></div>
+      <div class="count s3"><b>2</b><span>framebudget</span></div>
+    </div>
+    <!-- /fb:counts -->
   </div>
-  <!-- /fb:counts -->
   <!-- fb:changes -->
   <div class="changes">
-    <div class="change features"><span class="kind">Feature</span><span class="text">One report per browser a week</span><span class="areas">library, website</span></div>
-    <div class="change features"><span class="kind">Feature</span><span class="text">Collect anonymous device reports</span><span class="areas">website</span></div>
-    <div class="change other"><span class="kind">Change</span><span class="text">Lib at root, lint rules, cve fixes</span><span class="areas">library</span></div>
+    <div class="change features"><span class="kind">Feature</span><span class="text">Adaptive tiers per device class</span><span class="sections"><span class="section s1">@framebudget/core</span></span></div>
+    <div class="change fixes"><span class="kind">Fix</span><span class="text">Resolve the panel entry from the umbrella</span><span class="sections"><span class="section s1">@framebudget/core</span><span class="section s3">framebudget</span></span></div>
+    <div class="change fixes"><span class="kind">Fix</span><span class="text">Keep the tier stable across renders</span><span class="sections"><span class="section s2">@framebudget/react</span></span></div>
   </div>
   <!-- /fb:changes -->
   <script>
